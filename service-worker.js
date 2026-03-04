@@ -1,36 +1,11 @@
-const CACHE_NAME = 'mog-ncc-v1';
-const ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/logo.png'
-];
+const CACHE_NAME = 'mog-v2';
+const ASSETS = ['/', '/index.html', '/tos.html', '/privacy.html', '/logo.png', '/manifest.json'];
 
-// Install Service Worker
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS);
-    })
-  );
+self.addEventListener('install', (e) => {
+  e.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)));
 });
 
-// Activate and Clean Old Caches
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
-      );
-    })
-  );
-});
-
-// Fetch Assets from Cache first
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
-    })
-  );
+self.addEventListener('fetch', (e) => {
+  if (e.request.url.includes('supabase.co')) return;
+  e.respondWith(caches.match(e.request).then((res) => res || fetch(e.request)));
 });
